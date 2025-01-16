@@ -1,0 +1,82 @@
+openapi: 3.0.3
+info:
+  title: SecVault API
+  description: API for securely sharing secrets via tokens.
+  version: 1.0.0
+servers:
+  - url: https://secvault.tech/api/v1
+    description: Public API server
+paths:
+  /secrets:
+    post:
+      summary: Share a secret
+      description: Store a secret and generate a pair of tokens to share it.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                secret:
+                  type: string
+                  description: The secret (e.g., password) to share.
+                ttl:
+                  type: integer
+                  description: The time-to-live (TTL) of the secret in minutes.
+              required:
+                - secret
+                - ttl
+      responses:
+        '201':
+          description: Secret successfully stored with tokens.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token_1:
+                    type: string
+                    description: First token for accessing the secret.
+                  token_2:
+                    type: string
+                    description: Second token for accessing the secret.
+        '400':
+          description: Invalid input (e.g., missing or empty secret).
+        '500':
+          description: Internal server error.
+
+  /secrets?token1={token_1}&token2={token_2}:
+    get:
+      summary: Retrieve a secret
+      description: Retrieve the secret using the pair of tokens.
+      parameters:
+        - name: token_1
+          in: path
+          required: true
+          description: First token of the pair.
+          schema:
+            type: string
+        - name: token_2
+          in: path
+          required: true
+          description: Second token of the pair.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Secret successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret:
+                    type: string
+                    description: The secret value (e.g., password).
+        '404':
+          description: Secret expired.
+        '400':
+          description: Invalid token pair.
+        '500':
+          description: Internal server error.

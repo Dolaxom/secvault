@@ -1,0 +1,9 @@
+services:
+  swagger:
+    build:
+      context: .
+      dockerfile: swagger.Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./docs/api/swagger.yaml:/usr/share/swagger.yaml:ro
