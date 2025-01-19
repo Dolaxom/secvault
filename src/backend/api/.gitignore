@@ -1,0 +1,3 @@
+# Bazel
+src/MODULE.bazel.lock
+src/bazel-*
