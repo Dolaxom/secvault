@@ -1,16 +1,15 @@
 openapi: 3.0.3
 info:
-  title: SecVault API
-  description: API for securely sharing secrets via tokens.
+  title: Secret Management API
+  description: An API for securely managing secrets using tokens.
   version: 1.0.0
 servers:
-  - url: https://secvault.tech/api/v1
-    description: Public API server
+  - url: /api/v1
 paths:
-  /secrets:
+  /secret/write:
     post:
-      summary: Share a secret
-      description: Store a secret and generate a pair of tokens to share it.
+      summary: Save a secret in website storage
+      operationId: writeSecret
       requestBody:
         required: true
         content:
@@ -20,52 +19,55 @@ paths:
               properties:
                 secret:
                   type: string
-                  description: The secret (e.g., password) to share.
-                ttl:
-                  type: integer
-                  description: The time-to-live (TTL) of the secret in minutes.
+                  description: The secret to be saved.
+                  example: "My secret password"
+                password:
+                  type: string
+                  description: A custom user token that will not be stored on the server
+                  example: "G7lK#8!2"
               required:
                 - secret
-                - ttl
+                - password
       responses:
-        '201':
-          description: Secret successfully stored with tokens.
+        '200':
+          description: Tokens for accessing the secret.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token_1:
+                  first:
                     type: string
-                    description: First token for accessing the secret.
-                  token_2:
+                    description: The first part of the access token.
+                    example: "d7ffcb05b9fcdbabf3149a1d4e3bda6c2edcf09ab76f6b5d184a6c6a4f263fa1"
+                  second:
                     type: string
-                    description: Second token for accessing the secret.
-        '400':
-          description: Invalid input (e.g., missing or empty secret).
-        '500':
-          description: Internal server error.
-
-  /secrets?token1={token_1}&token2={token_2}:
+                    description: The second part of the access token.
+                    example: "G7lK#8!2"
+        '404':
+          description: Invalid request.
+  /secret/read:
     get:
       summary: Retrieve a secret
-      description: Retrieve the secret using the pair of tokens.
+      operationId: readSecret
       parameters:
-        - name: token_1
-          in: path
+        - name: token1
+          in: query
           required: true
-          description: First token of the pair.
           schema:
             type: string
-        - name: token_2
-          in: path
+            description: The first part of the access token.
+            example: "d7ffcb05b9fcdbabf3149a1d4e3bda6c2edcf09ab76f6b5d184a6c6a4f263fa1"
+        - name: token2
+          in: query
           required: true
-          description: Second token of the pair.
           schema:
             type: string
+            description: The second part of the access token.
+            example: "G7lK#8!2"
       responses:
         '200':
-          description: Secret successfully retrieved.
+          description: The retrieved secret.
           content:
             application/json:
               schema:
@@ -73,10 +75,6 @@ paths:
                 properties:
                   secret:
                     type: string
-                    description: The secret value (e.g., password).
+                    description: The stored secret.
         '404':
-          description: Secret expired.
-        '400':
-          description: Invalid token pair.
-        '500':
-          description: Internal server error.
+          description: Secret not found.
