@@ -8,21 +8,21 @@ namespace sv::token
 class Token {
 public:
   Token() = default;
-  Token(const std::u8string& token);
-  Token(std::u8string&& token) noexcept;
+  Token(const std::string& token);
+  Token(std::string&& token) noexcept;
 
   Token(const Token& token);
   Token(Token&& token) noexcept;
 
   Token& operator=(const Token& token);
   Token& operator=(Token&& token) noexcept;
-  constexpr bool operator==(const Token& token) noexcept;
+  bool operator==(const Token& token) const noexcept;
 
   void Generate();
-  std::u8string Dump() const;
+  std::string Dump() const;
 
 private:
-  std::u8string data_;
+  std::string data_;
 };
 
 } // namespace sv::token

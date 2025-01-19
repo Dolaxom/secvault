@@ -2,11 +2,11 @@
 
 namespace sv::token {
 
-Token::Token(const std::u8string& token) {
+Token::Token(const std::string& token) {
   data_ = token;
 }
 
-Token::Token(std::u8string&& token) noexcept {
+Token::Token(std::string&& token) noexcept {
   data_ = std::move(token);
 }
 
@@ -20,13 +20,15 @@ Token::Token(Token&& token) noexcept {
 
 Token& Token::operator=(const Token& token) {
   data_ = token.data_;
+  return *this;
 }
 
 Token& Token::operator=(Token&& token) noexcept {
   data_ = std::move(token.data_);
+  return *this;
 }
 
-bool Token::operator==(const Token& token) {
+bool Token::operator==(const Token& token) const noexcept {
   return data_ == token.data_;
 }
 
@@ -34,8 +36,8 @@ void Token::Generate() {
 
 }
 
-std::u8string Token::Dump() const {
-  return u8"";
+std::string Token::Dump() const {
+  return "";
 }
 
 }  // namespace sv::token
