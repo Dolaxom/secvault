@@ -7,3 +7,12 @@ services:
       - "8080:8080"
     volumes:
       - ./docs/api/swagger.yaml:/usr/share/swagger.yaml:ro
+
+  api:
+    build:
+      context: .
+      dockerfile: api.Dockerfile 
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./api/src:/app
