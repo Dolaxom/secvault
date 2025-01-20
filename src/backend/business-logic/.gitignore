@@ -3,3 +3,4 @@ SecVault
 bin
 build
 CMakeUserPresets.json
+proto
