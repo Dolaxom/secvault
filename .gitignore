@@ -3,3 +3,6 @@ src/docker/docs*
 
 # Code
 .vscode
+
+# Logs
+*.log
