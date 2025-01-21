@@ -4,3 +4,4 @@ bin
 build
 CMakeUserPresets.json
 proto
+*.proto

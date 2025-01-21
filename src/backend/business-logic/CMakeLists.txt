@@ -13,10 +13,20 @@ include_directories(proto)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(fmt REQUIRED)
-find_package(Protobuf REQUIRED)
+find_package(protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 
-file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cc" "${CMAKE_SOURCE_DIR}/src/**/*.cc")
+set(SOURCES
+  src/main.cc
+
+  src/core/token.cc
+  src/core/server/bl_server.cc
+  src/core/server/secret_management_service.cc
+
+  proto/secret_management.grpc.pb.cc
+  proto/secret_management.pb.cc
+)
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} fmt::fmt gRPC::grpc++ protobuf::libprotobuf)
+target_link_libraries(${PROJECT_NAME} fmt::fmt grpc::grpc protobuf::protobuf)

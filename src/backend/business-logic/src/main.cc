@@ -1,9 +1,7 @@
-#include <common/logger.h>
+#include <core/server/bl_server.h>
 
 int main() {
-  sv::Logger logger{"traces.log"};
+  sv::bl::Server rpcServer{ sv::bl::Socket {"127.0.0.1", "9005"} };
 
-  logger.Log(sv::LogCategory::ERROR, "test error msg");
-  logger.Log(sv::LogCategory::WARN, "test warn msg");
-  logger.Log(sv::LogCategory::INFO, "test info msg");
+  rpcServer.RunServer();
 }
