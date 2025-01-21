@@ -27,7 +27,7 @@ void Server::CreateServer() {
 
   grpcServer_ = builder_.BuildAndStart();
 
-  // refactor this trash
+  // TODO refactor this trash
   fmt::print("{}[INFO]\t\t{}Server is running at {}{}:{}{}{}\n",
              "\033[32m", "\033[0m", "\033[36m", socketInfo_.ip, socketInfo_.port, "\033[32m", "\033[0m");
 }

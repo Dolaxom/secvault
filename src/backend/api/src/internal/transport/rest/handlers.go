@@ -2,25 +2,39 @@ package rest
 
 import (
 	"api/internal/models"
+	"api/internal/transport/grpc"
+	"context"
 	"fmt"
 	"net/http"
+	"time"
+
+	pb "api/internal/transport/grpc/proto"
 
 	"github.com/gin-gonic/gin"
 )
 
 func MappingRoutes(engine *gin.Engine) {
 	engine.POST("/api/v1/secret/write", func(c *gin.Context) {
-		var json models.SecretWriteRequest
-		if err := c.ShouldBindJSON(&json); err != nil {
+		var reqBody models.SecretWriteRequest
+		if err := c.ShouldBindJSON(&reqBody); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// TODO Отправить по rpc на C++ сервер
+		client := grpc.GetGRPCClient()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		requestBodyRpc := &pb.WriteSecretRequest{
+			Secret:   reqBody.Secret,
+			Password: reqBody.Password,
+		}
+
+		responseRpc, _ := client.Client.WriteSecret(ctx, requestBodyRpc)
 
 		response := models.SecretWriteResponse{
-			FirstToken:  "first test token",
-			SecondToken: "second test token",
+			FirstToken:  responseRpc.FirstToken,
+			SecondToken: responseRpc.SecondToken,
 		}
 
 		c.JSON(http.StatusOK, response)
