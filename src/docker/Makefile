@@ -10,7 +10,7 @@ build_swagger:
 build_api:
 	cp -R ../backend/api .
 	cp -R ../backend/proto .
-	docker compose up api
+	docker compose up --build api
 	make clean
 
 clean:

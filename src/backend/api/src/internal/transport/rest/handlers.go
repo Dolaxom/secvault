@@ -14,10 +14,10 @@ import (
 )
 
 func MappingRoutes(engine *gin.Engine) {
-	engine.POST("/api/v1/secret/write", func(c *gin.Context) {
+	engine.POST("/api/v1/secret/write", func(ginCtx *gin.Context) {
 		var reqBody models.SecretWriteRequest
-		if err := c.ShouldBindJSON(&reqBody); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if err := ginCtx.ShouldBindJSON(&reqBody); err != nil {
+			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
@@ -37,7 +37,7 @@ func MappingRoutes(engine *gin.Engine) {
 			SecondToken: responseRpc.SecondToken,
 		}
 
-		c.JSON(http.StatusOK, response)
+		ginCtx.JSON(http.StatusOK, response)
 	})
 
 	engine.GET("/api/v1/secret/read", func(c *gin.Context) {
