@@ -23,7 +23,7 @@ class Server {
   void RunServer();
 
  private:
-  SecretManagementService service_;
+  server::SecretManagementService service_;
   Socket socketInfo_;
   grpc::ServerBuilder builder_;
   std::unique_ptr<grpc::Server> grpcServer_;
