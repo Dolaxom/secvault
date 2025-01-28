@@ -15,8 +15,8 @@ import (
 
 func MappingRoutes(engine *gin.Engine) {
 	engine.POST("/api/v1/secret/write", func(ginCtx *gin.Context) {
-		var reqBody models.SecretWriteRequest
-		if err := ginCtx.ShouldBindJSON(&reqBody); err != nil {
+		var requestBody models.SecretWriteRequest
+		if err := ginCtx.ShouldBindJSON(&requestBody); err != nil {
 			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -26,8 +26,8 @@ func MappingRoutes(engine *gin.Engine) {
 		defer cancel()
 
 		requestBodyRpc := &pb.WriteSecretRequest{
-			Secret:   reqBody.Secret,
-			Password: reqBody.Password,
+			Secret:   requestBody.Secret,
+			Password: requestBody.Password,
 		}
 
 		responseRpc, _ := client.Client.WriteSecret(ctx, requestBodyRpc)
