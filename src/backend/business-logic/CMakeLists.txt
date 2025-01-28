@@ -4,9 +4,10 @@ project(SecVault VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
-include(${CMAKE_BINARY_DIR}/conan_toolchain.cmake)
+message(STATUS "CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
+include(${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake)
 include_directories(src)
 include_directories(proto)
 
@@ -27,6 +28,15 @@ set(SOURCES
   proto/secret_management.pb.cc
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+set(HEADERS
+  src/core/token.h
+  src/core/server/bl_server.h
+  src/core/server/secret_management_service.h
 
-target_link_libraries(${PROJECT_NAME} fmt::fmt grpc::grpc protobuf::protobuf)
+  proto/secret_management.grpc.pb.h
+  proto/secret_management.pb.h
+)
+
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+target_link_libraries(${PROJECT_NAME} fmt::fmt grpc::grpc protobuf::protobuf abseil::abseil)
