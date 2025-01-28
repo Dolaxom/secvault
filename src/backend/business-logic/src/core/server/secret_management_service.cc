@@ -1,13 +1,20 @@
 #include "secret_management_service.h"
 
-namespace sv {
+#include <core/token.h>
+
+namespace sv::server {
 
 using namespace grpc;
 
 Status SecretManagementService::WriteSecret(ServerContext* context, const secretmanagement::WriteSecretRequest* request, secretmanagement::WriteSecretResponse* response) {
   auto password = request->password();
 
-  response->set_first_token("Not implemented.");
+  core::Token token;
+  token.Generate();
+
+  // Запись в бд
+
+  response->set_first_token(token.Dump());
   response->set_second_token(password);
 
   return {};
@@ -19,4 +26,4 @@ Status SecretManagementService::ReadSecret(ServerContext* context, const secretm
   return {};
 }
 
-}  // namespace sv
+}  // namespace sv::server

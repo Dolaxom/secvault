@@ -1,6 +1,9 @@
 #include "token.h"
 
-namespace sv::token {
+#include <common/crypto.h>
+#include <common/types.h>
+
+namespace sv::core {
 
 Token::Token(const std::string& token) {
   data_ = token;
@@ -33,11 +36,14 @@ bool Token::operator==(const Token& token) const noexcept {
 }
 
 void Token::Generate() {
+  auto seed = Crypto::GenerateString();
+  auto sha256str = Crypto::GenerateSha256(seed);
 
+  data_ = sha256str;
 }
 
 std::string Token::Dump() const {
-  return "";
+  return data_;
 }
 
-}  // namespace sv::token
+}  // namespace sv::core

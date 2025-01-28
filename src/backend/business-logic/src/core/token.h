@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace sv::token
+namespace sv::core
 {
 
 class Token {
@@ -25,4 +25,4 @@ private:
   std::string data_;
 };
 
-} // namespace sv::token
+} // namespace sv::core

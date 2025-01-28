@@ -3,7 +3,7 @@
 #include <grpcpp/grpcpp.h>
 #include <secret_management.grpc.pb.h>
 
-namespace sv {
+namespace sv::server {
 
 class SecretManagementService final : public secretmanagement::SecretService::Service {
  public:
@@ -16,4 +16,4 @@ class SecretManagementService final : public secretmanagement::SecretService::Se
                           secretmanagement::ReadSecretResponse* response);
 };
 
-}  // namespace sv
+}  // namespace sv::server
