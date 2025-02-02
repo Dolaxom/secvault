@@ -15,7 +15,8 @@ namespace postgres {
 class Pool
 {
 public:
-  Pool(u32 size);
+  Pool() = default;
+  void Build(i32 size, const ConnectionRules& rules);
   std::shared_ptr<postgres::Connection> GetConnection();
   void FreeConnection(std::shared_ptr<postgres::Connection> connection);
 
@@ -26,7 +27,7 @@ private:
 
   u32 size_;
 
-  void CreatePool();
+  void CreatePool(const ConnectionRules& rules);
 };
 
 }  // namespace postgres

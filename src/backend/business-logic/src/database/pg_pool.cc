@@ -7,8 +7,9 @@
 
 namespace postgres {
 
-Pool::Pool(u32 size) : size_{size_} {
-  CreatePool();
+void Pool::Build(i32 size, const ConnectionRules& rules) {
+  size_ = size;
+  CreatePool(rules);
 }
 
 std::shared_ptr<postgres::Connection> Pool::GetConnection() {
@@ -31,11 +32,11 @@ void Pool::FreeConnection(std::shared_ptr<postgres::Connection> connection) {
   condition_.notify_one();
 }
 
-void Pool::CreatePool() {
+void Pool::CreatePool(const ConnectionRules& rules) {
   std::lock_guard<std::mutex> lock{mutex_};
 
   for (u32 i = 0; i < size_; ++i) {
-    pool_.emplace(std::make_shared<postgres::Connection>());
+    pool_.emplace(std::make_shared<postgres::Connection>(rules));
   }
 }
 
