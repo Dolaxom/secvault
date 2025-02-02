@@ -1,6 +1,7 @@
 [requires]
 fmt/10.1.1
 grpc/1.67.1
+libpq/15.5
 [generators]
 CMakeDeps
 CMakeToolchain

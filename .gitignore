@@ -3,6 +3,7 @@ src/docker/docs*
 
 # Code
 .vscode
+build
 
 # Logs
 *.log
