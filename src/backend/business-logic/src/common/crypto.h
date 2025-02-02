@@ -39,6 +39,18 @@ struct Crypto {
 
     return stream.str();
   }
+
+  static std::string Encrypt(const std::string& data, const std::string& key)
+  {
+    // TODO
+    return data + "-" + key;
+  }
+
+  static std::string Decrypt(const std::string& data, const std::string& key)
+  {
+    // TODO
+    return data;
+  }
 };
 
 }  // namespace sv

@@ -14,6 +14,7 @@ namespace sv {
 enum class Result : u8 {
   kOk = 0,
   kFalse = 1,
+  kDbError = 2
 };
 
 }  // namespace sv
