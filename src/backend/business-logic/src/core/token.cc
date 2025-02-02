@@ -42,6 +42,13 @@ void Token::Generate() {
   data_ = sha256str;
 }
 
+Token Token::CreateRandom() {
+  Token token;
+  token.Generate();
+
+  return token;
+}
+
 std::string Token::Dump() const {
   return data_;
 }

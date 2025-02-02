@@ -19,6 +19,7 @@ public:
   bool operator==(const Token& token) const noexcept;
 
   void Generate();
+  static Token CreateRandom();
   std::string Dump() const;
 
 private:
