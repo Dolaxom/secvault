@@ -1,14 +1,21 @@
 #pragma once
 
-#include <stdexcept>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-
+#include <common/sys.h>
 #include <common/types.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/hmac.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/sha.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -40,16 +47,63 @@ struct Crypto {
     return stream.str();
   }
 
-  static std::string Encrypt(const std::string& data, const std::string& key)
-  {
-    // TODO
-    return data + "-" + key;
+  /**
+   * @brief Encrypts with AES-256
+   */
+  static std::string Encrypt(const std::string& data, const std::string& key) {
+    using CryptoPP::byte;
+    std::string ciphertext;
+
+    CryptoPP::AutoSeededRandomPool rng;
+    byte iv[CryptoPP::AES::BLOCKSIZE];
+    rng.GenerateBlock(iv, CryptoPP::AES::BLOCKSIZE);
+
+    std::string aesKey = key;
+    aesKey.resize(CryptoPP::AES::MAX_KEYLENGTH, '0');
+
+    try {
+      CryptoPP::CBC_Mode<CryptoPP::AES>::Encryption encryptor;
+      encryptor.SetKeyWithIV(reinterpret_cast<const byte*>(aesKey.data()), CryptoPP::AES::MAX_KEYLENGTH, iv);
+
+      std::string encryptedData;
+      CryptoPP::StringSource(data, true, new CryptoPP::StreamTransformationFilter(encryptor, new CryptoPP::StringSink(encryptedData)));
+
+      ciphertext.assign(reinterpret_cast<const char*>(iv), CryptoPP::AES::BLOCKSIZE);
+      ciphertext += encryptedData;
+    } catch (const CryptoPP::Exception& e) {
+      throw std::runtime_error("Encryption error: " + std::string(e.what())); // TODO replace on logger
+    }
+
+    return ciphertext;
   }
 
-  static std::string Decrypt(const std::string& data, const std::string& key)
-  {
-    // TODO
-    return data;
+  /**
+   * @brief Decrypts with AES-256
+   */
+  static std::string Decrypt(const std::string& encryptedData, const std::string& key) {
+    using CryptoPP::byte;
+    if (encryptedData.size() < CryptoPP::AES::BLOCKSIZE) {
+      throw std::runtime_error("Invalid encrypted data size.");
+    }
+
+    std::string decryptedtext;
+
+    byte iv[CryptoPP::AES::BLOCKSIZE];
+    std::memcpy(iv, encryptedData.data(), CryptoPP::AES::BLOCKSIZE);
+
+    std::string aesKey = key;
+    aesKey.resize(CryptoPP::AES::MAX_KEYLENGTH, '0');
+
+    try {
+      CryptoPP::CBC_Mode<CryptoPP::AES>::Decryption decryptor;
+      decryptor.SetKeyWithIV(reinterpret_cast<const byte*>(aesKey.data()), CryptoPP::AES::MAX_KEYLENGTH, iv);
+
+      CryptoPP::StringSource(encryptedData.substr(CryptoPP::AES::BLOCKSIZE), true, new CryptoPP::StreamTransformationFilter(decryptor, new CryptoPP::StringSink(decryptedtext)));
+    } catch (const CryptoPP::Exception& e) {
+      throw std::runtime_error("Decryption error: " + std::string(e.what())); // TODO replace on logger
+    }
+
+    return decryptedtext;
   }
 };
 

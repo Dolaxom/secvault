@@ -52,7 +52,17 @@ Status SecretManagementService::WriteSecret(ServerContext* context, const secret
 }
 
 Status SecretManagementService::ReadSecret(ServerContext* context, const secretmanagement::ReadSecretRequest* request, secretmanagement::ReadSecretResponse* response) {
-  response->set_secret("Not implemented.");
+  std::string ecryptedSecret;
+  auto dbConnection = pgPool_->GetConnection();
+  if (ReadSecretFromDb(dbConnection, request->first_token(), ecryptedSecret) != Result::kOk) {
+    pgPool_->FreeConnection(dbConnection);
+    return Status{StatusCode::UNAVAILABLE, "Server error"};
+  }
+  pgPool_->FreeConnection(dbConnection);
+  
+  auto secret = sv::Crypto::Decrypt(ecryptedSecret, request->second_token());
+
+  response->set_secret(secret);
 
   return {};
 }
@@ -60,13 +70,35 @@ Status SecretManagementService::ReadSecret(ServerContext* context, const secretm
 sv::Result SecretManagementService::InsertSecretDb(std::shared_ptr<postgres::Connection>& connection, const std::string& token, const std::string& secret) {
   const char* query = "INSERT INTO secrets (id, message) VALUES ($1, $2);";
   const char* values[] = {token.c_str(), secret.c_str()};
-  PGresult* result = PQexecParams(connection->GetRaw().get(), query, 2, nullptr, values, nullptr, nullptr, 0);
-  if (PQresultStatus(result) != PGRES_COMMAND_OK) {
+  PGresult* pgresult = PQexecParams(connection->GetRaw().get(), query, 2, nullptr, values, nullptr, nullptr, 0);
+  if (PQresultStatus(pgresult) != PGRES_COMMAND_OK) {
     return Result::kDbError;
   }
 
-  PQclear(result);
+  PQclear(pgresult);
 
+  return Result::kOk;
+}
+
+sv::Result SecretManagementService::ReadSecretFromDb(std::shared_ptr<postgres::Connection>& connection, const std::string& token, std::string& result) {
+  const char* query = "SELECT message FROM secrets WHERE id = $1;";
+  const char* values[] = {token.c_str()};
+  PGresult* pgresult = PQexecParams(connection->GetRaw().get(), query, 1, nullptr, values, nullptr, nullptr, 0);
+
+  if (PQresultStatus(pgresult) != PGRES_TUPLES_OK) {
+    PQclear(pgresult);
+    return Result::kDbError;
+  }
+
+  int rowCount = PQntuples(pgresult);
+  if (rowCount > 0) {
+    result = PQgetvalue(pgresult, 0, 0);
+  } else {
+    PQclear(pgresult);
+    return Result::kFalse;
+  }
+
+  PQclear(pgresult);
   return Result::kOk;
 }
 

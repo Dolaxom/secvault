@@ -26,6 +26,10 @@ class SecretManagementService final : public secretmanagement::SecretService::Se
   sv::Result InsertSecretDb(std::shared_ptr<postgres::Connection>& connection,
                             const std::string& token,
                             const std::string& secret);
+
+  sv::Result ReadSecretFromDb(std::shared_ptr<postgres::Connection>& connection,
+                              const std::string& token,
+                              std::string& secret);
 };
 
 }  // namespace sv::server
