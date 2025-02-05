@@ -4,7 +4,6 @@ import (
 	"api/internal/models"
 	"api/internal/transport/grpc"
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -44,11 +43,19 @@ func MappingRoutes(engine *gin.Engine) {
 		token1 := c.DefaultQuery("token1", "")
 		token2 := c.DefaultQuery("token2", "")
 
-		fmt.Println(token1 + ", " + token2)
-		// TODO Отправить по rpc на C++ сервер
+		client := grpc.GetGRPCClient()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		requestBodyRpc := &pb.ReadSecretRequest{
+			FirstToken:  token1,
+			SecondToken: token2,
+		}
+
+		responseRpc, _ := client.Client.ReadSecret(ctx, requestBodyRpc)
 
 		response := models.SecretReadResponse{
-			Secret: "test secret",
+			Secret: responseRpc.Secret,
 		}
 
 		c.JSON(http.StatusOK, response)
