@@ -3,6 +3,7 @@
 #include <common/sys.h>
 #include <common/types.h>
 #include <cryptopp/aes.h>
+#include <cryptopp/base64.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
@@ -71,7 +72,7 @@ struct Crypto {
       ciphertext.assign(reinterpret_cast<const char*>(iv), CryptoPP::AES::BLOCKSIZE);
       ciphertext += encryptedData;
     } catch (const CryptoPP::Exception& e) {
-      throw std::runtime_error("Encryption error: " + std::string(e.what())); // TODO replace on logger
+      throw std::runtime_error("Encryption error: " + std::string(e.what()));  // TODO replace on logger
     }
 
     return ciphertext;
@@ -100,10 +101,22 @@ struct Crypto {
 
       CryptoPP::StringSource(encryptedData.substr(CryptoPP::AES::BLOCKSIZE), true, new CryptoPP::StreamTransformationFilter(decryptor, new CryptoPP::StringSink(decryptedtext)));
     } catch (const CryptoPP::Exception& e) {
-      throw std::runtime_error("Decryption error: " + std::string(e.what())); // TODO replace on logger
+      throw std::runtime_error("Decryption error: " + std::string(e.what()));  // TODO replace on logger
     }
 
     return decryptedtext;
+  }
+
+  static std::string EncodeBase64(const std::string& input) {
+    std::string encoded;
+    CryptoPP::StringSource ss(input, true, new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encoded), false));
+    return encoded;
+  }
+
+  static std::string DecodeBase64(const std::string& input) {
+    std::string decoded;
+    CryptoPP::StringSource ss(input, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(decoded)));
+    return decoded;
   }
 };
 

@@ -36,7 +36,8 @@ SecretManagementService::SecretManagementService() {
 
 Status SecretManagementService::WriteSecret(ServerContext* context, const secretmanagement::WriteSecretRequest* request, secretmanagement::WriteSecretResponse* response) {
   auto token = core::Token::CreateRandom().Dump();
-  auto secretEncrypted = sv::Crypto::Encrypt(request->secret(), request->password());
+  auto secretBinary = sv::Crypto::Encrypt(request->secret(), request->password());
+  std::string secretEncrypted = sv::Crypto::EncodeBase64(secretBinary);
 
   auto dbConnection = pgPool_->GetConnection();
   if (InsertSecretDb(dbConnection, token, secretEncrypted) != Result::kOk) {
@@ -52,17 +53,22 @@ Status SecretManagementService::WriteSecret(ServerContext* context, const secret
 }
 
 Status SecretManagementService::ReadSecret(ServerContext* context, const secretmanagement::ReadSecretRequest* request, secretmanagement::ReadSecretResponse* response) {
-  std::string ecryptedSecret;
+  std::string encryptedTextFromDB;
   auto dbConnection = pgPool_->GetConnection();
-  if (ReadSecretFromDb(dbConnection, request->first_token(), ecryptedSecret) != Result::kOk) {
+  if (ReadSecretFromDb(dbConnection, request->first_token(), encryptedTextFromDB) != Result::kOk) {
     pgPool_->FreeConnection(dbConnection);
     return Status{StatusCode::UNAVAILABLE, "Server error"};
   }
   pgPool_->FreeConnection(dbConnection);
-  
-  auto secret = sv::Crypto::Decrypt(ecryptedSecret, request->second_token());
 
-  response->set_secret(secret);
+  try {
+    std::string encryptedBinary = sv::Crypto::DecodeBase64(encryptedTextFromDB);
+    auto secret = sv::Crypto::Decrypt(encryptedBinary, request->second_token());
+
+    response->set_secret(secret);
+  } catch (const std::exception& e) {
+    return Status{StatusCode::UNAVAILABLE, e.what()};
+  }
 
   return {};
 }
@@ -71,7 +77,8 @@ sv::Result SecretManagementService::InsertSecretDb(std::shared_ptr<postgres::Con
   const char* query = "INSERT INTO secrets (id, message) VALUES ($1, $2);";
   const char* values[] = {token.c_str(), secret.c_str()};
   PGresult* pgresult = PQexecParams(connection->GetRaw().get(), query, 2, nullptr, values, nullptr, nullptr, 0);
-  if (PQresultStatus(pgresult) != PGRES_COMMAND_OK) {
+  if (auto res = PQresultStatus(pgresult); res != PGRES_COMMAND_OK) {
+    std::cerr << "[INFO] InsertSecretDb() db error, res = " << res << std::endl;
     return Result::kDbError;
   }
 

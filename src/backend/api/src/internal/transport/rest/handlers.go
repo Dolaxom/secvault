@@ -29,7 +29,12 @@ func MappingRoutes(engine *gin.Engine) {
 			Password: requestBody.Password,
 		}
 
-		responseRpc, _ := client.Client.WriteSecret(ctx, requestBodyRpc)
+		responseRpc, err := client.Client.WriteSecret(ctx, requestBodyRpc)
+
+		if err != nil {
+			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
 		response := models.SecretWriteResponse{
 			FirstToken:  responseRpc.FirstToken,
@@ -39,9 +44,9 @@ func MappingRoutes(engine *gin.Engine) {
 		ginCtx.JSON(http.StatusOK, response)
 	})
 
-	engine.GET("/api/v1/secret/read", func(c *gin.Context) {
-		token1 := c.DefaultQuery("token1", "")
-		token2 := c.DefaultQuery("token2", "")
+	engine.GET("/api/v1/secret/read", func(ginCtx *gin.Context) {
+		token1 := ginCtx.DefaultQuery("token1", "")
+		token2 := ginCtx.DefaultQuery("token2", "")
 
 		client := grpc.GetGRPCClient()
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -52,12 +57,17 @@ func MappingRoutes(engine *gin.Engine) {
 			SecondToken: token2,
 		}
 
-		responseRpc, _ := client.Client.ReadSecret(ctx, requestBodyRpc)
+		responseRpc, err := client.Client.ReadSecret(ctx, requestBodyRpc)
+
+		if err != nil {
+			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
 		response := models.SecretReadResponse{
 			Secret: responseRpc.Secret,
 		}
 
-		c.JSON(http.StatusOK, response)
+		ginCtx.JSON(http.StatusOK, response)
 	})
 }
