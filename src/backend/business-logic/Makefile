@@ -15,7 +15,9 @@ clean:
 	rm -rf build
 	rm -rf proto
 
-
 build_draft:
 	/home/merlinst/.local/bin/cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -S/home/merlinst/secvault/src/backend/business-logic -B/home/merlinst/secvault/src/backend/business-logic/build/build/Release -G "Unix Makefiles"
 	cd build/build/Release && make 
+
+conan_install:
+	conan install . --output-folder=build --build=missing

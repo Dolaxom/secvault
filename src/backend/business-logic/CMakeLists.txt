@@ -17,6 +17,7 @@ find_package(fmt REQUIRED)
 find_package(protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(PostgreSQL REQUIRED)
+find_package(cryptopp REQUIRED)
 
 set(SOURCES
   src/main.cc
@@ -46,4 +47,4 @@ set(HEADERS
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} fmt::fmt PostgreSQL::PostgreSQL grpc::grpc protobuf::protobuf abseil::abseil)
+target_link_libraries(${PROJECT_NAME} fmt::fmt PostgreSQL::PostgreSQL grpc::grpc protobuf::protobuf abseil::abseil cryptopp::cryptopp)

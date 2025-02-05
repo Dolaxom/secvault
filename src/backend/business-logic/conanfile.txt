@@ -2,6 +2,7 @@
 fmt/10.1.1
 grpc/1.67.1
 libpq/15.5
+cryptopp/8.9.0
 [generators]
 CMakeDeps
 CMakeToolchain
