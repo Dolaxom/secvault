@@ -11,7 +11,7 @@ export SECV_SALT="secret_salt"
 docker run -e SECV_SALT="secret_salt" {image}
 ```
 
-`!` Yoy can find the salt in the code in the `common/crypto.h` file with `GetSecretSalt()` function
+`!` Yoy can find the salt in the code in the `common/sys.h` file with `Environment` struct.
 
 ## PoomPoomPoom
 
