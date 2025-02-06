@@ -9,10 +9,18 @@ import (
 
 	pb "api/internal/transport/grpc/proto"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func MappingRoutes(engine *gin.Engine) {
+	engine.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // fix in prod
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+	}))
+
 	engine.POST("/api/v1/secret/write", func(ginCtx *gin.Context) {
 		var requestBody models.SecretWriteRequest
 		if err := ginCtx.ShouldBindJSON(&requestBody); err != nil {
