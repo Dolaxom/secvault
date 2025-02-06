@@ -1,3 +1,6 @@
 # Bazel
 src/MODULE.bazel.lock
 src/bazel-*
+
+# Bin
+secret_management.proto
