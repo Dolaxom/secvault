@@ -1,5 +1,6 @@
 #pragma once
 
+#include <common/logger.h>
 #include <common/sys.h>
 #include <common/types.h>
 #include <cryptopp/aes.h>
@@ -27,7 +28,8 @@ struct Crypto {
     unsigned char randomRawString[SHA256_DIGEST_LENGTH];
     i32 res = RAND_bytes(randomRawString, sizeof(randomRawString));
     if (res != 1) {
-      throw std::runtime_error("Can`t generate random string. Result = " + res);
+      Logger::Instance().Write(Severity::Error, fmt::format("Can't generate string via openssl with error = {}", res));
+      throw std::runtime_error("Generator error");
     }
 
     return std::string{reinterpret_cast<char*>(randomRawString), sizeof(randomRawString)};
@@ -72,7 +74,8 @@ struct Crypto {
       ciphertext.assign(reinterpret_cast<const char*>(iv), CryptoPP::AES::BLOCKSIZE);
       ciphertext += encryptedData;
     } catch (const CryptoPP::Exception& e) {
-      throw std::runtime_error("Encryption error: " + std::string(e.what()));  // TODO replace on logger
+      Logger::Instance().Write(Severity::Error, fmt::format("Can't encrypt message, error = {}", e.what()));
+      throw std::runtime_error("Wrong input data");
     }
 
     return ciphertext;
@@ -84,7 +87,7 @@ struct Crypto {
   static std::string Decrypt(const std::string& encryptedData, const std::string& key) {
     using CryptoPP::byte;
     if (encryptedData.size() < CryptoPP::AES::BLOCKSIZE) {
-      throw std::runtime_error("Invalid encrypted data size.");
+      throw std::runtime_error("Wrong input data`s length");
     }
 
     std::string decryptedtext;
@@ -101,7 +104,8 @@ struct Crypto {
 
       CryptoPP::StringSource(encryptedData.substr(CryptoPP::AES::BLOCKSIZE), true, new CryptoPP::StreamTransformationFilter(decryptor, new CryptoPP::StringSink(decryptedtext)));
     } catch (const CryptoPP::Exception& e) {
-      throw std::runtime_error("Decryption error: " + std::string(e.what()));  // TODO replace on logger
+      Logger::Instance().Write(Severity::Error, fmt::format("Can't decrypt message, error = {}", e.what()));
+      throw std::runtime_error("Wrong input data");
     }
 
     return decryptedtext;

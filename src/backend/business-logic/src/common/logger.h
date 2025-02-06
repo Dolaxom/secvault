@@ -1,91 +1,79 @@
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
+#define SPDLOG_FMT_EXTERNAL
+#include <spdlog/async.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/async_logger.h>
+
 #include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <mutex>
-#include <queue>
-#include <string>
-#include <thread>
+#include <memory>
+#include <vector>
 
 namespace sv {
 
-enum LogCategory { INFO = 0, WARN = 1, ERROR = 2 };
+enum class Severity {
+  Info = 0,
+  Error
+};
+
+enum class LogType {
+  File = 0,
+  FileAndStdout  // Default value
+};
 
 class Logger {
  public:
-  Logger(const std::filesystem::path& filename) : stopLogging_(false) {
-    logThread_ = std::thread(&Logger::ProcessLogs, this, filename);
+  static Logger& Instance(const std::filesystem::path& file = "default.log") {
+    static Logger instance(file);
+    return instance;
   }
 
-  ~Logger() { Stop(); }
+  Logger(const Logger&) = delete;
+  Logger& operator=(const Logger&) = delete;
 
-  void Log(LogCategory category, const std::string& message) {
-    {
-      std::lock_guard<std::mutex> lock(queueMutex_);
-      logQueue_.push(std::move(
-          std::string{"[" + LogCategoryToString(category) + "]\t\t" + message}));
+  void Write(Severity severity, const std::string& message, LogType type = LogType::FileAndStdout) {
+    spdlog::level::level_enum lvl;
+    switch (severity) {
+      case Severity::Info:
+        lvl = spdlog::level::info;
+        break;
+      case Severity::Error:
+        lvl = spdlog::level::err;
+        break;
+      default:
+        lvl = spdlog::level::debug;
+        break;
     }
-    queueCondition_.notify_one();
-  }
 
-  void Stop() {
-    {
-      std::lock_guard<std::mutex> lock(queueMutex_);
-      stopLogging_ = true;
+    if (type == LogType::File || type == LogType::FileAndStdout) {
+      fileLogger_->log(lvl, message);
     }
-    queueCondition_.notify_one();
-    if (logThread_.joinable()) {
-      logThread_.join();
+    if (type == LogType::FileAndStdout) {
+      stdoutLogger_->log(lvl, message);
     }
   }
 
  private:
-  std::queue<std::string> logQueue_;
-  std::mutex queueMutex_;
-  std::condition_variable queueCondition_;
-  std::thread logThread_;
-  std::atomic<bool> stopLogging_;
+  Logger(const std::filesystem::path& file) : file_(file) {
+    spdlog::init_thread_pool(8192, 1);
 
-  void ProcessLogs(const std::string& filename) {
-    std::ofstream logFile(filename, std::ios::out | std::ios::app);
-    if (!logFile.is_open()) {
-      std::cerr << "Failed to open log file: " << filename << std::endl;
-      return;
-    }
+    fileLogger_ = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", file_.string());
 
-    while (true) {
-      std::unique_lock<std::mutex> lock(queueMutex_);
-      queueCondition_.wait(
-          lock, [this] { return !logQueue_.empty() || stopLogging_; });
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    stdoutLogger_ = std::make_shared<spdlog::async_logger>(
+        "async_console_logger", console_sink, spdlog::thread_pool(),
+        spdlog::async_overflow_policy::block);
+    spdlog::register_logger(stdoutLogger_);
 
-      while (!logQueue_.empty()) {
-        logFile << logQueue_.front() << std::endl;
-        logQueue_.pop();
-      }
-
-      if (stopLogging_) {
-        break;
-      }
-    }
-
-    logFile.close();
+    fileLogger_->set_pattern("%Y-%m-%d %H:%M:%S.%e [%l] %v");
+    stdoutLogger_->set_pattern("%Y-%m-%d %H:%M:%S.%e [%l] %v");
   }
 
-  std::string LogCategoryToString(LogCategory category) {
-    switch (category) {
-      case LogCategory::INFO:
-        return "INFO";
-      case LogCategory::WARN:
-        return "WARN";
-      case LogCategory::ERROR:
-        return "ERROR";
-    }
-
-    return "LOG";
-  }
+  std::filesystem::path file_;
+  std::shared_ptr<spdlog::logger> fileLogger_;
+  std::shared_ptr<spdlog::logger> stdoutLogger_;
 };
 
 }  // namespace sv

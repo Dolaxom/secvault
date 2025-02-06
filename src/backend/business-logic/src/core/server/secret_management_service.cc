@@ -1,5 +1,6 @@
 #include "secret_management_service.h"
 
+#include <common/logger.h>
 #include <common/crypto.h>
 #include <core/token.h>
 
@@ -78,7 +79,7 @@ sv::Result SecretManagementService::InsertSecretDb(std::shared_ptr<postgres::Con
   const char* values[] = {token.c_str(), secret.c_str()};
   PGresult* pgresult = PQexecParams(connection->GetRaw().get(), query, 2, nullptr, values, nullptr, nullptr, 0);
   if (auto res = PQresultStatus(pgresult); res != PGRES_COMMAND_OK) {
-    std::cerr << "[INFO] InsertSecretDb() db error, res = " << res << std::endl;
+    Logger::Instance().Write(Severity::Error, fmt::format("Can't Insert sercret with id = {} in DB; error = {}", token, (i32)res));
     return Result::kDbError;
   }
 

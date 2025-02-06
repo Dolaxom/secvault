@@ -1,5 +1,6 @@
 #include "bl_server.h"
 
+#include <common/logger.h>
 #include <fmt/core.h>
 
 namespace sv::bl {
@@ -28,8 +29,7 @@ void Server::CreateServer() {
   grpcServer_ = builder_.BuildAndStart();
 
   // TODO refactor this trash
-  fmt::print("{}[INFO]\t\t{}Server is running at {}{}:{}{}{}\n",
-             "\033[32m", "\033[0m", "\033[36m", socketInfo_.ip, socketInfo_.port, "\033[32m", "\033[0m");
+  Logger::Instance().Write(Severity::Info, fmt::format("Server is running at {}{}:{}{}{}", "\033[36m", socketInfo_.ip, socketInfo_.port, "\033[32m", "\033[0m"));
 }
 
 }  // namespace sv::bl

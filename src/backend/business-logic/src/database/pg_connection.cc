@@ -1,5 +1,8 @@
 #include "pg_connection.h"
 
+#include <common/types.h>
+#include <common/logger.h>
+
 namespace postgres {
 
 Connection::Connection(const ConnectionRules& rules) {
@@ -15,7 +18,8 @@ Connection::Connection(const ConnectionRules& rules) {
                                     &PQfinish);
 
   if (PQstatus(rawConnection_.get()) != CONNECTION_OK && PQsetnonblocking(rawConnection_.get(), 1) != 0) {
-    throw std::runtime_error(PQerrorMessage(rawConnection_.get()));
+    sv::Logger::Instance().Write(sv::Severity::Error, fmt::format("DATABASE CONNECTION ERROR; result = {}", (i32)PQstatus(rawConnection_.get())));
+    throw std::runtime_error("Wrong on the server side");
   }
 }
 
