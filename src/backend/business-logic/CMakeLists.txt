@@ -24,7 +24,7 @@ set(SOURCES
   src/main.cc
 
   src/core/token.cc
-  src/core/server/bl_server.cc
+  src/core/server/grpc_server.cc
   src/core/server/secret_management_service.cc
 
   src/database/pg_connection.cc
@@ -36,7 +36,7 @@ set(SOURCES
 
 set(HEADERS
   src/core/token.h
-  src/core/server/bl_server.h
+  src/core/server/grpc_server.h
   src/core/server/secret_management_service.h
 
   src/database/pg_connection.h

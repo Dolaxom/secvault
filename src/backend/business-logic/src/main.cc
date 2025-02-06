@@ -1,5 +1,5 @@
 #include <common/logger.h>
-#include <core/server/bl_server.h>
+#include <core/server/grpc_server.h>
 
 int main() {
   ::sv::Logger::Instance("blserver.log").Write(::sv::Severity::Info, "Logger is configured");

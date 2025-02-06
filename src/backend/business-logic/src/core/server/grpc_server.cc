@@ -1,4 +1,4 @@
-#include "bl_server.h"
+#include "grpc_server.h"
 
 #include <common/logger.h>
 #include <fmt/core.h>
