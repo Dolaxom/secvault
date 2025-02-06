@@ -13,6 +13,18 @@ docker run -e SECV_SALT="secret_salt" {image}
 
 `!` Yoy can find the salt in the code in the `common/sys.h` file with `Environment` struct.
 
-## PoomPoomPoom
+## Svelte
 
-`~~~`
+Install nodejs and npm
+
+```bash
+curl -fsSL https://fnm.vercel.app/install | bash
+source ~/.bashrc
+fnm use --install-if-missing 20
+```
+
+Create project
+
+```bash
+npm create vite@latest secvault-frontend --template svelte
+```

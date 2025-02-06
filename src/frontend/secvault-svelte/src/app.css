@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+  font-family: "Space Grotesk", "Open Sans";
+  font-optical-sizing: auto;
+  font-style: normal;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(155deg, #19181e, #192119);
+}
+
+.container {
+  border-radius: 15px;
+  width: 1300px;
+  color: white;
+  /* height: 100%; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 100px;
+}
+
+header {
+  width: 100%;
+  background: rgba(53, 71, 53, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.header-wrapper {
+  width: 1300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.box {
+  background: rgba(53, 71, 53, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  margin: 20px;
+  text-align: left;
+  border-radius: 15px;
+  width: 100%;
+}
+
+#title {
+  margin: 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: linear-gradient(45deg, #d8ffd8, #cfc8ff);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 5em;
+  font-family: "Manrope", serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
+
+#description {
+  margin: 0;
+  font-size: 2em;
+  width: 50%;
+}
+
+#whyus {
+  color: white;
+}
+
+#bigger {
+  font-size: 2em;
+  background: linear-gradient(45deg, #e1fff5, #c8ffcb);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.section {
+  margin: 0;
+}
+
+.section input {
+  margin-bottom: 10px;
+}
+
+input {
+  padding: 15px;
+  border: 0;
+  width: 50%;
+  font-size: 1rem;
+  background-color: #343a34;
+  color: white;
+  border-radius: 4px;
+}
+
+input:focus {
+  outline: 0;
+}
+
+#btn {
+  padding: 7px 35px;
+  border-radius: 60px;
+  background: rgba(35, 255, 134, 0.5);
+  backdrop-filter: blur(10px);
+  color: #def8d6;
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.1s;
+}
+
+#btn:hover {
+  background: rgba(35, 255, 134, 0.7);
+}
+
+button,
+button:active,
+button:focus  {
+  border:none;
+}
+
+#output {
+  font-size: 1.2em;
+  font-weight: 600;
+  font-family: "Roboto", serif;
+}
