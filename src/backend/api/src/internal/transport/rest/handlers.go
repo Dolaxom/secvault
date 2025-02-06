@@ -24,7 +24,12 @@ func MappingRoutes(engine *gin.Engine) {
 	engine.POST("/api/v1/secret/write", func(ginCtx *gin.Context) {
 		var requestBody models.SecretWriteRequest
 		if err := ginCtx.ShouldBindJSON(&requestBody); err != nil {
-			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "You must send the json with the 'secret' and 'password' fields!"})
+			return
+		}
+
+		if len(requestBody.Secret) == 0 || len(requestBody.Password) == 0 {
+			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "The field values must be filled in!"})
 			return
 		}
 
@@ -55,6 +60,11 @@ func MappingRoutes(engine *gin.Engine) {
 	engine.GET("/api/v1/secret/read", func(ginCtx *gin.Context) {
 		token1 := ginCtx.DefaultQuery("token1", "")
 		token2 := ginCtx.DefaultQuery("token2", "")
+
+		if len(token1) == 0 || len(token2) == 0 {
+			ginCtx.JSON(http.StatusBadRequest, gin.H{"error": "The values of token1 and token2 must be filled in via query parameters!"})
+			return
+		}
 
 		client := grpc.GetGRPCClient()
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
