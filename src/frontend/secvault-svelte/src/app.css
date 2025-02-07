@@ -15,9 +15,9 @@ body {
 
 .container {
   border-radius: 15px;
-  width: 1300px;
+  width: 90%;
+  max-width: 1300px;
   color: white;
-  /* height: 100%; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,7 +39,8 @@ header {
 }
 
 .header-wrapper {
-  width: 1300px;
+  width: 90%;
+  max-width: 1300px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -127,11 +128,46 @@ input:focus {
 button,
 button:active,
 button:focus  {
-  border:none;
+  border: none;
 }
 
 #output {
   font-size: 1.2em;
   font-weight: 600;
   font-family: "Roboto", serif;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    margin-left: 5px;
+    margin-top: 80px;
+    padding: 0 10px;
+  }
+
+  .header-wrapper {
+    flex-direction: row;
+    padding: 10px;
+  }
+
+  #title {
+    font-size: 3em;
+  }
+
+  #description {
+    width: 100%;
+    font-size: 1.2em;
+  }
+
+  input {
+    width: 90%;
+  }
+
+  .box {
+    width: 90%;
+  }
+
+  #btn {
+    width: 90%;
+    text-align: center;
+  }
 }
